@@ -1,4 +1,5 @@
 ﻿open System.IO
+open System.Text
 
 type XY = { X: int; Y: int; }
 let makeXY x y = { X = x; Y = y; }
@@ -41,15 +42,18 @@ let moveRobot (spaceWidth: int) (spaceHeight: int) (time: int) (r: Robot) =
 
 let printRobots (spaceWidth: int) (spaceHeight: int) (robots: Robot list) =
     let occupiedPositions = Seq.map (fun r -> r.Pos) robots |> Set.ofSeq
+    let sb = new StringBuilder()
 
     for y in 0 .. spaceHeight - 1 do
         for x in 0 .. spaceWidth - 1 do
             if Set.contains (makeXY x y) occupiedPositions then
-                printf "X"
+                sb.Append("X") |> ignore
             else
-                printf " "
+                sb.Append(" ") |> ignore
 
-        printfn ""
+        sb.AppendLine() |> ignore
+
+    printf $"{sb.ToString()}"
 
 
 let robots =
@@ -75,3 +79,12 @@ let q3 = robotsAfter100Secs |> Seq.filter (fun r -> r.Pos.X < spaceWidth / 2 && 
 let q4 = robotsAfter100Secs |> Seq.filter (fun r -> r.Pos.X > spaceWidth / 2 && r.Pos.Y > spaceHeight / 2) |> Seq.length
 
 printfn $"Part 1: {q1 * q2 * q3 * q4}"
+
+
+let mutable christmasRobots = robots
+for t in 0 .. 10000 do
+    printfn $"Time {t}"
+    printRobots spaceWidth spaceHeight christmasRobots
+    printfn ""
+    printfn ""
+    christmasRobots <- christmasRobots |> Seq.map (fun r -> moveRobot spaceWidth spaceHeight 1 r) |> List.ofSeq
